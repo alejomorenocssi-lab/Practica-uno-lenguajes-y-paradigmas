@@ -1,0 +1,62 @@
+-- Divisores con Lista por Comprensión
+divisoresPropios :: Int -> [Int]
+divisoresPropios n = [x | x <- [1 .. n `div` 2], n `mod` x == 0]
+-- lo que hacemos aca es coger un numero n y le sacamos los divisores que son menores que ese numero n
+
+--  Suma alícuota
+sumaAlicuota :: Int -> Int
+sumaAlicuota n = sum (divisoresPropios n)
+-- aca sumamos esos divisores 
+
+--  Esquema de Nicómaco (Los retornos estan en ingles)
+categoriaNicomaco :: Int -> String
+categoriaNicomaco n
+    | s > n  = "Administrative"
+    | s == n = "Engineering"
+    | s < n  = "Humanities"
+    where s = sumaAlicuota n
+{- aca hacemos la categorizacion del programa, entonces si la suma de esos divisores son mayores que el numero n
+el programa entonces sera del area administrativa, si la suma de los divisores da como resultado el mismo numero n
+entonces sera del area de ingenieria y por ultimo si esa suma de divisores es menor que el numero n entonces sera del
+area de humanidades-}
+
+--  Procesamiento principal.
+procesarCodigo :: String -> String
+procesarCodigo codigo
+    | length codigo /= 8 = "Error: El código no tiene exactamente 8 dígitos."
+-- aca rectificamos que hayan exactamente 8 digitos
+
+    | periodo `notElem` ["262", "271", "272", "281", "282", "291", "292"] = "Error: Periodo de admisión fuera de rango."
+-- aca rectificamos que si este en el periodo de admision que nos pidieron
+
+    | otherwise = unwords [formaPeriodoBuena periodo, categoriaNicomaco categoriaInt, "num" ++ show consecutivoInt, paridad codigo]
+    where
+-- aca hacemos el esamblaje de toda la informacion, el periodo de admision, el area, el numero y la paridad (si es par o impar)
+
+        -- Extracción pura de las partes del código
+        
+        periodo        = take 3 codigo
+        -- los 3 primeros diginos son del periodo de admision 
+        
+        categoriaInt   = read (take 2 (drop 3 codigo)) :: Int
+        -- del digito 4 a 5 se usan para poder hacer la categoriaNicomano y poder decir en que area estan
+        
+        consecutivoInt = read (drop 5 codigo) :: Int
+        -- el consecutivo son los tres ultimos digitos y se usa para decir el numero
+        
+        -- Funciones auxiliares
+        formaPeriodoBuena p = "20" ++ take 2 p ++ "-" ++ drop 2 p
+        -- esta funcion nos ayuda a descomponer el numero del periodo y ponerlo en forma mas formal tipo 262 lo pasa a 2026-2
+        
+        paridad c = if even (read c :: Int) then "even" else "odd"
+        {- esta funcion coge el texto lo vuelve en tipo entero y evalua si es par o impar, si es par se agrega even,
+        si es impar se pone odd-}
+
+-- Punto de entrada (main) 
+main :: IO ()
+main = do
+    putStrLn (procesarCodigo "26276002") -- Esperado: 2026-2 Humanities num2 even
+    putStrLn (procesarCodigo "27128112") -- Esperado: 2027-1 Engineering num112 even
+    putStrLn (procesarCodigo "27206025") -- Esperado: 2027-2 Engineering num25 odd
+    putStrLn (procesarCodigo "28124236") -- Esperado: 2028-1 Administrative num236 even
+    putStrLn (procesarCodigo "28299115") -- Esperado: 2028-2 Humanities num115 odd
