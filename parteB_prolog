@@ -1,0 +1,94 @@
+%reglas
+
+%caracteristicas_codigo(Num,Periodo,Cat,NumAdmision,ParidadTexto)
+caracteristicas_codigo(Num,Periodo,Cat,NumAdmision,ParidadTexto):-
+
+    cifras(Num,PrimerasTresCifras,TresCifrasNum,DosCifras),
+
+    suma(DosCifras,SumAlicuata),
+    
+    traducirPeriodo(PrimerasTresCifras,Periodo),
+    
+    categoria(DosCifras,SumAlicuata,Cat),
+    
+    admision(TresCifrasNum,NumAdmision),
+    
+    paridad(Num,ParidadTexto).
+    
+%traducirPeriodo(PrimerasTresCifras,Periodo)
+%cambiar las tres primeras cifras al periodo 
+traducirPeriodo(PrimerasTresCifras,'2026-2'):-
+    PrimerasTresCifras=:=262.
+traducirPeriodo(PrimerasTresCifras,'2027-2'):-
+    PrimerasTresCifras=:=272.
+traducirPeriodo(PrimerasTresCifras,'2028-2'):-
+    PrimerasTresCifras=:=282.
+traducirPeriodo(PrimerasTresCifras,'2029-2'):-
+    PrimerasTresCifras=:=292.                                               
+traducirPeriodo(PrimerasTresCifras,'2027-1'):-
+    PrimerasTresCifras=:=271.
+traducirPeriodo(PrimerasTresCifras,'2028-1'):-
+    PrimerasTresCifras=:=281.
+traducirPeriodo(PrimerasTresCifras,'2029-1'):-
+    PrimerasTresCifras=:=291.
+    
+%divisor(DosCifras,Div)
+%Para hallar un numero divisor 
+divisor(DosCifras,Div):-
+    between(1, DosCifras, Div),
+    DosCifras mod Div =:= 0,
+    DosCifras=\=Div.
+    
+%suma(DosCifras,SumAlicuata)
+%Para hallar la suma alicuota de un numero de dos cifras
+suma(DosCifras,SumAlicuata):-
+    findall(Div, divisor(DosCifras, Div), ListaDivisores),
+    sum_list(ListaDivisores,SumAlicuata).
+    
+
+%cifras(Num,PrimerasTresCifras,TresCifrasNum,DosCifras)
+%Para comprobar que el número codigo este dentro del rango
+%Separar las cfiras del número y que las últimas 3 cifras no sea 000
+cifras(Num,PrimerasTresCifras,TresCifrasNum,DosCifras):-
+    between(26201001, 29299999, Num),
+    PrimerasTresCifras is (Num//100000),
+    TresCifrasNum is Num mod 1000,
+    TresCifrasNum>0,
+    DosCifras is (Num // 1000) mod 100.
+
+%categoria(DosCifras,SumAlicuata,Cat)
+categoria(DosCifras,SumAlicuata,'Engineering'):-
+    SumAlicuata =:= DosCifras.
+categoria(DosCifras,SumAlicuata,'Administrative'):-
+    SumAlicuata > DosCifras.
+categoria(DosCifras,SumAlicuata,'Humanities'):-
+    SumAlicuata < DosCifras.
+
+%Admision(Num,NumAdmision)DosCifras
+%Para transformar el número en "Num+el numero de ingreso"
+admision(TresCifrasNum,NumAdmision):-
+    atom_number(NumAtom, TresCifrasNum),
+    atom_concat('num', NumAtom, NumAdmision).
+
+%paridad(Num,ParidadTexto)
+%Para hallar la paridad del codigo del carnet
+paridad(Num,'even'):- 
+    Num mod 2 =:= 0.
+paridad(Num,'odd'):-
+    Num mod 2 =\= 0.
+
+ejemplo:-
+    findall(Num,caracteristicas_codigo(Num,'2026-2','Engineering',_,_),ListaNumeros),
+    write(ListaNumeros),
+    halt.
+    
+traducirCodigo:-
+write('Ingrese el codigo: '), 
+    read(Num),
+    ( caracteristicas_codigo(Num, Periodo, Cat, NumAdmision, ParidadTexto)
+    -> format('~w ~w ~w ~w~n', [Periodo, Cat, NumAdmision, ParidadTexto])
+    ;  format('Codigo invalido~n', [])
+    ),
+    halt.
+%:-traducirCodigo.
+%:-ejemplo.
